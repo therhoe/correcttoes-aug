@@ -1,0 +1,20 @@
+{%- doc -%}
+  Renders a drop shadow declaration from shadow settings.
+  Outputs a `box-shadow` property directly, or a CSS custom property when `prop` is provided.
+
+  @param {object} settings - Block or section settings containing the drop shadow options
+  @param {string} [prop] - CSS property name to output instead of `box-shadow` (e.g. `--drop-shadow`)
+
+  @example
+  {% render 'shadow-style', settings: block.settings %}
+{%- enddoc -%}
+{%- if settings.drop_shadow -%}
+  {%- assign shadow_alpha = settings.shadow_opacity | default: 15 | divided_by: 100.0 -%}
+  {{ prop | default: 'box-shadow' }}: {{ settings.shadow_horizontal_offset | default: 0 }}px {{ settings.shadow_vertical_offset | default: 4 }}px {{ settings.shadow_blur | default: 16 }}px
+  {% if settings.shadow_color != blank -%}
+    rgb({{ settings.shadow_color.rgb }} / {{ shadow_alpha }})
+  {%- else -%}
+    rgb(var(--color-foreground-rgb) / {{ shadow_alpha }})
+  {%- endif -%}
+  ;
+{%- endif -%}

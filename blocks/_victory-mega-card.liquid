@@ -1,0 +1,357 @@
+{% liquid
+  assign resource = blank
+  assign resource_image = blank
+  assign resource_title = blank
+  assign resource_url = blank
+
+  case block.settings.content_type
+    when 'product'
+      assign resource = block.settings.product
+      assign resource_image = resource.featured_image
+      assign resource_title = resource.title
+      assign resource_url = resource.url
+    when 'collection'
+      assign resource = block.settings.collection
+      assign resource_image = resource.featured_image
+      assign resource_title = resource.title
+      assign resource_url = resource.url
+    when 'article'
+      assign resource = block.settings.article
+      assign resource_image = resource.image
+      assign resource_title = resource.title
+      assign resource_url = resource.url
+  endcase
+
+  assign card_image = block.settings.image | default: resource_image
+  assign card_title = block.settings.heading | default: resource_title
+  assign card_url = block.settings.link | default: resource_url
+  assign card_label = block.settings.label
+
+  if card_label == blank
+    case block.settings.content_type
+      when 'product'
+        assign card_label = 'Shop now'
+      when 'collection'
+        assign card_label = 'Explore collection'
+      when 'article'
+        assign card_label = 'Read article'
+    endcase
+  endif
+%}
+
+{% if card_title != blank or card_image != blank %}
+  <article
+    class="victory-mega-card victory-mega-card--{{ block.settings.card_style }}{% if card_image == blank %} victory-mega-card--no-image{% endif %}"
+    {{ block.shopify_attributes }}
+  >
+    {% if card_url != blank %}
+      <a
+        href="{{ card_url }}"
+        class="victory-mega-card__link"
+        aria-label="{{ card_title | escape }}"
+      ></a>
+    {% endif %}
+
+    {% if card_image != blank %}
+      <div class="victory-mega-card__media">
+        {{
+          card_image
+          | image_url: width: 900
+          | image_tag:
+            widths: '240, 360, 480, 640, 900',
+            sizes: '(min-width: 1100px) 22vw, (min-width: 750px) 30vw, 44vw',
+            loading: 'lazy',
+            class: 'victory-mega-card__image'
+        }}
+      </div>
+    {% endif %}
+
+    <div class="victory-mega-card__content">
+      {% if block.settings.eyebrow != blank %}
+        <p class="victory-mega-card__eyebrow">{{ block.settings.eyebrow | escape }}</p>
+      {% endif %}
+      {% if card_title != blank %}
+        <h3 class="victory-mega-card__title">{{ card_title | escape }}</h3>
+      {% endif %}
+      {% if block.settings.text != blank %}
+        <div class="victory-mega-card__text">{{ block.settings.text }}</div>
+      {% endif %}
+      {% if card_url != blank and card_label != blank %}
+        <span class="victory-mega-card__cta">
+          {{- card_label | escape -}}
+          <span aria-hidden="true">&rarr;</span>
+        </span>
+      {% endif %}
+    </div>
+  </article>
+{% endif %}
+
+{% stylesheet %}
+  .victory-mega-card {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-width: 0;
+    min-height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    border-radius: 0.75rem;
+    background: rgb(var(--color-foreground-rgb) / 0.035);
+  }
+
+  .victory-mega-card__link {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .victory-mega-card__link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
+  }
+
+  .victory-mega-card__media {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .victory-mega-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 300ms ease;
+  }
+
+  .victory-mega-card:has(.victory-mega-card__link:hover) .victory-mega-card__image {
+    transform: scale(1.035);
+  }
+
+  .victory-mega-card__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.9rem;
+  }
+
+  .victory-mega-card__eyebrow {
+    margin: 0 0 0.35rem;
+    color: rgb(var(--color-foreground-rgb) / 0.65);
+    font-size: 0.6875rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .victory-mega-card__title {
+    margin: 0;
+    color: var(--color-foreground);
+    font-family: var(--font-subheading--family);
+    font-size: 0.95rem;
+    font-weight: 650;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .victory-mega-card__text {
+    margin-block-start: 0.45rem;
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .victory-mega-card__text > * {
+    margin: 0;
+  }
+
+  .victory-mega-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-block-start: auto;
+    padding-block-start: 0.75rem;
+    color: var(--color-foreground);
+    font-size: 0.75rem;
+    font-weight: 650;
+  }
+
+  .victory-mega-card--feature {
+    display: grid;
+    min-height: 0;
+    grid-template-rows: auto auto;
+  }
+
+  .victory-mega-card--feature .victory-mega-card__media {
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .victory-mega-card--no-image {
+    min-height: 12rem;
+    justify-content: flex-end;
+  }
+
+  .victory-mega-menu__mobile-cards .victory-mega-card__content {
+    padding: 0.7rem;
+  }
+
+  .victory-mega-menu__mobile-cards .victory-mega-card__title {
+    font-size: 0.8125rem;
+  }
+
+  .victory-mega-menu__mobile-cards .victory-mega-card__text,
+  .victory-mega-menu__mobile-cards .victory-mega-card__eyebrow {
+    display: none;
+  }
+
+  .victory-mega-menu__mobile-cards .victory-mega-card__cta {
+    font-size: 0.6875rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .victory-mega-card__image {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Victory menu card",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "content_type",
+      "label": "Content source",
+      "options": [
+        {
+          "value": "custom",
+          "label": "Custom"
+        },
+        {
+          "value": "product",
+          "label": "Product"
+        },
+        {
+          "value": "collection",
+          "label": "Collection"
+        },
+        {
+          "value": "article",
+          "label": "Article"
+        }
+      ],
+      "default": "custom"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "article",
+      "id": "article",
+      "label": "Article"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card style",
+      "options": [
+        {
+          "value": "tile",
+          "label": "Tile"
+        },
+        {
+          "value": "feature",
+          "label": "Feature"
+        }
+      ],
+      "default": "tile"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image override"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading override"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Description"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Link label"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link override"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Menu card",
+      "category": "Mega menu",
+      "settings": {
+        "content_type": "custom",
+        "heading": "New menu card",
+        "label": "Learn more"
+      }
+    },
+    {
+      "name": "Product card",
+      "category": "Mega menu",
+      "settings": {
+        "content_type": "product",
+        "card_style": "tile",
+        "heading": "Choose a product",
+        "label": "Shop now"
+      }
+    },
+    {
+      "name": "Collection card",
+      "category": "Mega menu",
+      "settings": {
+        "content_type": "collection",
+        "card_style": "tile",
+        "heading": "Choose a collection",
+        "label": "Explore"
+      }
+    },
+    {
+      "name": "Editorial feature",
+      "category": "Mega menu",
+      "settings": {
+        "content_type": "custom",
+        "card_style": "feature",
+        "eyebrow": "Featured",
+        "heading": "New feature",
+        "label": "Learn more"
+      }
+    }
+  ]
+}
+{% endschema %}

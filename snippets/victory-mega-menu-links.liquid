@@ -1,0 +1,39 @@
+{%- doc -%}
+  Renders the nested Shopify navigation links used by a Victory mega menu.
+
+  @param {object} parent_link - Top-level Shopify navigation link.
+{%- enddoc -%}
+
+{% # theme-check-disable ValidScopedCSSClass %}
+{% for child_link in parent_link.links %}
+  <div class="victory-mega-menu__link-group">
+    <a
+      href="{{ child_link.url }}"
+      class="victory-mega-menu__group-title"
+      {% if child_link.current %}
+        aria-current="page"
+      {% endif %}
+    >
+      {{- child_link.title | escape -}}
+    </a>
+
+    {% if child_link.links != blank %}
+      <ul class="victory-mega-menu__child-links list-unstyled" role="list">
+        {% for grandchild_link in child_link.links %}
+          <li>
+            <a
+              href="{{ grandchild_link.url }}"
+              class="victory-mega-menu__child-link"
+              {% if grandchild_link.current %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- grandchild_link.title | escape -}}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endfor %}
+{% # theme-check-enable ValidScopedCSSClass %}

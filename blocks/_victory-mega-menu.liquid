@@ -1,0 +1,254 @@
+{%- doc -%}
+  Configures one top-level navigation item's desktop mega menu. The menu
+  manager moves this block into the matching navigation submenu at runtime.
+{%- enddoc -%}
+
+{% capture cards %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div
+  class="victory-mega-menu-shell section section--full-width-margin section--{{ section.settings.section_width }}"
+  data-victory-mega-menu-source
+  data-trigger-key="{{ block.settings.trigger_title | handleize }}"
+  hidden
+  {{ block.shopify_attributes }}
+>
+  <div
+    class="victory-mega-menu victory-mega-menu--{{ block.settings.layout }}"
+    style="--victory-link-columns: {{ block.settings.link_columns }}; --victory-card-columns: {{ block.settings.card_columns }};"
+  >
+    <div class="victory-mega-menu__links">
+      <div
+        class="victory-mega-menu__link-groups"
+        data-victory-link-slot
+      ></div>
+
+      {% if block.settings.show_view_all %}
+        <a
+          href="#"
+          class="victory-mega-menu__view-all"
+          data-victory-view-all
+        >
+          <span data-victory-view-all-label>
+            {{- block.settings.view_all_label | default: block.settings.trigger_title | escape -}}
+          </span>
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      {% endif %}
+    </div>
+
+    {% if cards != blank %}
+      <div class="victory-mega-menu__cards">
+        {{ cards }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .victory-mega-menu-shell {
+    width: 100%;
+  }
+
+  .victory-mega-menu {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(16rem, 4fr) minmax(0, 6fr);
+    align-items: start;
+    gap: clamp(1.75rem, 3vw, 3.5rem);
+    padding-block: clamp(1.5rem, 2.5vw, 2.5rem);
+    white-space: normal;
+  }
+
+  .victory-mega-menu--feature-left {
+    grid-template-columns: minmax(0, 6fr) minmax(16rem, 4fr);
+  }
+
+  .victory-mega-menu--feature-left .victory-mega-menu__cards {
+    order: -1;
+  }
+
+  .victory-mega-menu--links-wide {
+    grid-template-columns: minmax(0, 7fr) minmax(18rem, 3fr);
+  }
+
+  .victory-mega-menu__links {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .victory-mega-menu__link-groups {
+    display: grid;
+    grid-template-columns: repeat(var(--victory-link-columns, 3), minmax(0, 1fr));
+    gap: 1.75rem clamp(1.25rem, 2.5vw, 2.5rem);
+  }
+
+  .victory-mega-menu__link-group {
+    min-width: 0;
+  }
+
+  .victory-mega-menu__group-title {
+    display: inline-flex;
+    margin-block-end: 0.75rem;
+    color: var(--color-foreground);
+    font-family: var(--font-subheading--family);
+    font-size: 0.875rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .victory-mega-menu__group-title:hover,
+  .victory-mega-menu__group-title:focus-visible,
+  .victory-mega-menu__child-link:hover,
+  .victory-mega-menu__child-link:focus-visible,
+  .victory-mega-menu__view-all:hover,
+  .victory-mega-menu__view-all:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .victory-mega-menu__child-links {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .victory-mega-menu__child-link {
+    color: rgb(var(--color-foreground-rgb) / 0.78);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  .victory-mega-menu__view-all {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .victory-mega-menu__cards {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: repeat(var(--victory-card-columns, 3), minmax(0, 1fr));
+    align-items: start;
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+
+  .victory-mega-menu__mobile-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0.75rem var(--drawer-padding) 1.5rem;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .victory-mega-menu {
+      grid-template-columns: minmax(0, 1fr) minmax(17rem, 1fr);
+      gap: 2rem;
+    }
+
+    .victory-mega-menu__link-groups {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .victory-mega-menu__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .victory-mega-menu__cards > :nth-child(n + 3) {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Victory mega menu",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_victory-mega-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "trigger_title",
+      "label": "Top-level menu title",
+      "info": "Enter a top-level title exactly as it appears in the selected Shopify menu. That item must contain nested links."
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Desktop layout",
+      "options": [
+        {
+          "value": "feature-right",
+          "label": "Links left, cards right"
+        },
+        {
+          "value": "feature-left",
+          "label": "Cards left, links right"
+        },
+        {
+          "value": "links-wide",
+          "label": "Wide links, single feature"
+        }
+      ],
+      "default": "feature-right"
+    },
+    {
+      "type": "range",
+      "id": "link_columns",
+      "label": "Link columns",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "card_columns",
+      "label": "Card columns",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show view-all link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View-all label",
+      "visible_if": "{{ block.settings.show_view_all }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Victory mega menu",
+      "category": "Navigation",
+      "settings": {
+        "layout": "feature-right",
+        "link_columns": 3,
+        "card_columns": 3,
+        "show_view_all": true
+      }
+    }
+  ]
+}
+{% endschema %}

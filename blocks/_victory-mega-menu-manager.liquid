@@ -1,0 +1,23 @@
+{%- doc -%}
+  Holds the merchant-managed mega menus and mounts each one into the matching
+  top-level navigation submenu.
+{%- enddoc -%}
+
+<victory-mega-menu-manager
+  hidden
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</victory-mega-menu-manager>
+
+{% schema %}
+{
+  "name": "Mega menus",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_victory-mega-menu"
+    }
+  ]
+}
+{% endschema %}
